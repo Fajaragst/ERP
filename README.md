@@ -4,6 +4,10 @@ Author: Fajar Agustian
 # ERP
 This Project is a simple ERP system that is built with Django and Python.
 
+`yoursite.com/module` is page to manage modules.
+`yoursite.com/product` is page to manage products.
+
+
 ## Modular Engine
 This is the core of the ERP system, it is responsible for discovering and loading other modules or app.
 ### Module Registry/Discovery
@@ -167,11 +171,10 @@ flowchart LR
     D --> J[product_list.html]
     E --> K[product_form.html]
     F --> K
-    G --> L[product_confirm_delete.html]
+    G --> M
     
     J --> M[Response]
     K --> M
-    L --> M
     
     M --> B
 ```
