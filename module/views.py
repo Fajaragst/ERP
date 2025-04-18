@@ -41,8 +41,7 @@ class InstallModuleView(TemplateView):
 class UninstallModuleView(TemplateView):
     def post(self, request, module_id):
         module = get_object_or_404(Module, pk=module_id)
-        module.is_installed = False 
-        module.save()
+        registry.uninstall_module(module.app_name)
         messages.success(request, f"Module '{module.name}' successfully uninstalled.")
         
         return redirect('module:module_list')

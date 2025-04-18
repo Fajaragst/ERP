@@ -123,7 +123,7 @@ class ModuleRegistry:
             module = Module.objects.get(app_name=app_name)
             module.is_installed = True
             module.save()
-            reload_urlconf()
+            self.reload_urlconf()
             return True
         except Module.DoesNotExist:
             return False
@@ -134,6 +134,7 @@ class ModuleRegistry:
             module = Module.objects.get(app_name=app_name)
             module.is_installed = False
             module.save()
+            self.reload_urlconf()
             
             # Mark as missing if it's not in the filesystem
             if app_name in self.modules:
@@ -146,7 +147,6 @@ class ModuleRegistry:
                         # Also remove from in-memory registry
                         del self.modules[app_name]
             
-            reload_urlconf()
             return True
         except Module.DoesNotExist:
             return False
@@ -185,16 +185,18 @@ class ModuleRegistry:
 
     def get_urlpatterns(self):
         urlpatterns = []
+        print('apply again')
         modules = Module.objects.filter(is_installed=True)
         for module in modules:
             urlpatterns.append(
                 path(f'{module.app_name}/', include(f'{module.app_name}.urls'))
             )
+        print(urlpatterns)
         return urlpatterns
 
-def reload_urlconf():
-    clear_url_caches()
-    importlib.reload(importlib.import_module(settings.ROOT_URLCONF))
+    def reload_urlconf(self):
+        clear_url_caches()
+        importlib.reload(importlib.import_module(settings.ROOT_URLCONF))
     
 # Singleton instance
 registry = ModuleRegistry() 
