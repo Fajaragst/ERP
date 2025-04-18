@@ -22,7 +22,11 @@ RUN pip install --upgrade pip && \
 
 # Copy project
 COPY . /app/
-RUN python manage.py migrate admin auth contenttypes sessions module
+RUN python manage.py migrate admin && \
+    python manage.py migrate auth && \
+    python manage.py migrate contenttypes && \
+    python manage.py migrate sessions && \
+    python manage.py migrate module
 
 # Run gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "erp.wsgi:application"] 
