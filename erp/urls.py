@@ -20,6 +20,8 @@ from django.shortcuts import redirect
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 
+from module.registry import registry
+
 urlpatterns = [
     path('', lambda request: redirect('module:module_list')),
     path("admin/", admin.site.urls),
@@ -29,7 +31,6 @@ urlpatterns = [
 
     path('module/', include('module.urls')),
 
-    path('product/', include('product.urls'), name = 'product'),
-    path('another_example_app/', include('another_example_app.urls'), name = 'another_example_app'),
-
 ]
+
+urlpatterns += registry.get_urlpatterns()

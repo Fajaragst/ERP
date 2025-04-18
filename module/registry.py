@@ -3,6 +3,7 @@ import os
 import pkgutil
 from django.apps import apps
 from django.conf import settings
+from django.urls import clear_url_caches, path, include
 from .models import Module
 
 class ModuleRegistry:
@@ -67,7 +68,7 @@ class ModuleRegistry:
             'description': description,
             'version': version,
         }
-        
+
         # Update or create in database
         try:
             module, created = Module.objects.get_or_create(
@@ -122,6 +123,7 @@ class ModuleRegistry:
             module = Module.objects.get(app_name=app_name)
             module.is_installed = True
             module.save()
+            reload_urlconf()
             return True
         except Module.DoesNotExist:
             return False
@@ -144,6 +146,7 @@ class ModuleRegistry:
                         # Also remove from in-memory registry
                         del self.modules[app_name]
             
+            reload_urlconf()
             return True
         except Module.DoesNotExist:
             return False
@@ -180,6 +183,18 @@ class ModuleRegistry:
             # This will happen during initial migrations when Module table doesn't exist yet
             pass
 
+    def get_urlpatterns(self):
+        urlpatterns = []
+        modules = Module.objects.filter(is_installed=True)
+        for module in modules:
+            urlpatterns.append(
+                path(f'{module.app_name}/', include(f'{module.app_name}.urls'))
+            )
+        return urlpatterns
 
+def reload_urlconf():
+    clear_url_caches()
+    importlib.reload(importlib.import_module(settings.ROOT_URLCONF))
+    
 # Singleton instance
 registry = ModuleRegistry() 
